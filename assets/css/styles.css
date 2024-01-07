@@ -1,22 +1,18 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@import "../lib/photoswipe/photoswipe.css";
+@import "../lib/photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.css";
+@import "../lib/flickr-justified-gallery/fjGallery.css";
+
 @font-face {
-  font-family: "Inter var";
+  font-family: "InterVariable";
   font-weight: 100 900;
   font-display: auto;
   font-style: normal;
   font-named-instance: "Regular";
-  src: url("../fonts/Inter-roman.var.woff2") format("woff2");
-}
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@import "../jslibs/photoswipe/dist/photoswipe.css";
-@import "../jslibs/photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.css";
-@import "../jslibs/flickr-justified-gallery/dist/fjGallery.css";
-
-html.dark {
-  color-scheme: dark;
+  src: url("../fonts/InterVariable.woff2") format("woff2");
 }
 
 [x-cloak] {
@@ -33,4 +29,17 @@ html.dark {
 }
 img.lazyload:not([src]) {
   visibility: hidden;
+}
+
+:root {
+  --color-primary: #171717; /* neutral-900 */
+  --color-secondary: #737373; /* neutral-500 */
+  --color-background: #ffffff; /* white */
+}
+
+html.dark {
+  color-scheme: dark;
+  --color-primary: #f5f5f5; /* neutral-100 */
+  --color-secondary: #a3a3a3; /* neutral-400 */
+  --color-background: #171717; /* neutral-900 */
 }
