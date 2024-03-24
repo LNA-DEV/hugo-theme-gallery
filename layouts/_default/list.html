@@ -1,4 +1,8 @@
 {{ define "main" }}
-  {{- partial "page_header.html" . -}}
-  {{- partial "page_albums.html" . -}}
+  {{ partial "title.html" . }}
+  <section class="galleries">
+    {{ range where .Pages "Params.private" "ne" true }}
+      {{ partial "album-card.html" . }}
+    {{ end }}
+  </section>
 {{ end }}

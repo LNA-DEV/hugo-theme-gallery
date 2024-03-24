@@ -1,9 +1,9 @@
-# hugo-theme-gallery
+# Hugo Gallery Theme
 
-A very simple and opinionated photo gallery theme for Hugo built with Tailwind CSS.
+A very simple and opinionated photo gallery theme for Hugo.
 
-- [Demo](https://hugo-gallery-example.netlify.com)
-- [Example site source](exampleSite)
+- [Demo](https://nicokaiser.github.io/hugo-theme-gallery/)
+- [Example site source](https://github.com/nicokaiser/hugo-theme-gallery/tree/main/exampleSite)
 
 ---
 
@@ -14,16 +14,16 @@ A very simple and opinionated photo gallery theme for Hugo built with Tailwind C
 ## Features
 
 - Responsive design
-- Dark theme
+- Dark color scheme (can be set per page)
 - Private albums
 - Automatic (or manual) selection of feature images
-- Justified album views with [Flickr's Justified Gallery](https://github.com/nk-o/flickr-justified-gallery)
+- Justified album views with [Flickr's Justified Layout](https://github.com/flickr/justified-layout)
 - Lightbox with [PhotoSwipe](https://photoswipe.com/)
 - SEO with Open Graph tags
 
 ## Installation
 
-This theme requires Hugo >= 0.112.
+This theme requires Hugo Extended >= 0.121.2. Dependencies are bundled, so no Node.js/NPM and PostCSS is needed.
 
 ### As a Hugo Module
 
@@ -33,10 +33,12 @@ Requires the Go binary installed.
 $ hugo mod init github.com/<your_user>/<your_project>
 ```
 
-Add the theme to your `hugo.toml`
+Then add the theme to your `hugo.toml`:
 
-```
-theme = ["github.com/nicokaiser/hugo-theme-gallery/v2"]
+```toml
+[module]
+  [[module.imports]]
+    path = "github.com/nicokaiser/hugo-theme-gallery/v4"
 ```
 
 ### As Git Submodule
@@ -50,27 +52,27 @@ $ git submodule add --depth=1 https://github.com/nicokaiser/hugo-theme-gallery.g
 Page bundles which contain at least one image are listed as album or gallery:
 
 ```
-contents
-|-- _index.md
-|-- about.md             <-- not listed in album list
-|-- animals
-|   |-- _index.md
-|   |-- cats
-|   |   |-- index.md
-|   |   |-- cat1.jpg
-|   |   `-- feature.jpg  <-- album thumbnail
-|   |-- dogs
-|   |   |-- index.md
-|   |   |-- dog1.jpg     <-- album thumbnail
-|   |   `-- dog2.jpg
-|   `-- feature.jpg
-|-- bridge.jpg           <-- site thumbnail (OpenGraph, etc.)
-`-- nature
-    |-- index.md         <-- contains `featured_image: images/tree.jpg`
-    |-- images
-    |   `-- tree.jpg     <-- album thumbnail, not shown in gallery
-    |-- nature1.jpg
-    `-- nature2.jpg
+content/
+├── _index.md
+├── about.md             <-- not listed in album list
+├── animals/
+│   ├── _index.md
+│   ├── cats/
+│   |   ├── index.md
+│   |   ├── cat1.jpg
+│   |   └── feature.jpg  <-- album thumbnail
+│   ├── dogs/
+│   |   ├── index.md
+│   |   ├── dog1.jpg     <-- album thumbnail
+│   |   └── dog2.jpg
+│   └── feature.jpg
+├── bridge.jpg           <-- site thumbnail (OpenGraph, etc.)
+└── nature/
+    ├── index.md         <-- contains `featured_image: images/tree.jpg`
+    ├── images/
+    |   └── tree.jpg     <-- album thumbnail
+    ├── nature1.jpg
+    └── nature2.jpg
 ```
 
 - `/about.md` is not a Page Bundle and does not have image resources. It is not displayed in the album list.
@@ -78,7 +80,6 @@ contents
 - `/animals` is a Branch Bundle (has `_index.md` and has children) => displayed as album list (`list` layout).
 - The image resource with `*feature*` in its name or the first image found is used as thumbnail image for album lists.
 - Albums without an image are not shown.
-- Images in a sub-directory are not shown (here: `nature/images/tree.jpg`). This can be used to provide an album thumbnail that is not shown in the album itself.
 
 ### Front matter
 
@@ -88,49 +89,66 @@ contents
 - `featured_image` -- name of the image file used for the album thumbnail. If not set, the first image which contains `feature` in its filename is used, otherwise the first image in the album.
 - `weight` -- can be used to adjust sort order.
 - `private` -- if set to `true`, this album is not shown in the album overview and is excluded from RSS feeds.
-- `featured` -- if set to `true`, this album is listed on the homepage (even if private).
-- `sort_by` -- property used for sorting images in an album. Default is `Name` (filename), but can also be `Exif.Date` (only works if all images have EXIF tags).
+- `featured` -- if set to `true`, this album is featured on the homepage (even if private).
+- `sort_by` -- property used for sorting images in an album. Default is `Name` (filename), but can also be `Date`.
 - `sort_order` -- sort order. Default is `asc`.
+- `params.theme` -- color theme for this page. Defaults to `defaultTheme` from configuration.
 
-### Custom CSS
+### Metadata
 
-This theme uses Tailwind CSS and comes with a pre-built `styles.css`, so installing Node.js, PostCSS, etc. is not required. Some CSS variables can be used to create a customized look:
+Image titles for the lightbox view are either taken from the `ImageDescription` EXIF tag, or the `title` in the resource metadata.
 
-Add a `assets/css/custom.css` to your site and adjust the values to your needs:
+EXIF tags can be written using software like Adobe Lightroom or by using command line tools like exiftool:
 
-```css
-:root {
-  --color-primary: #171717; /* neutral-900 */
-  --color-secondary: #737373; /* neutral-500 */
-  --color-background: #ffffff; /* white */
-}
-
-html.dark {
-  --color-primary: #f5f5f5; /* neutral-100 */
-  --color-secondary: #a3a3a3; /* neutral-400 */
-  --color-background: #171717; /* neutral-900 */
-}
+```
+exiftool -ImageDescription="A closeup of a gray cat's face" cat-4.jpg
 ```
 
-### Albums with images and sub-albums
+Alternatively, the image title can be set in the front matter:
 
-In some cases it might be desirable to show images _and_ sub-albums on one page. To achive this, a local version of `list.html` needs to be added with something like this:
-
-```diff
-  {{ define "main" }}
-    {{- partial "page_header.html" . -}}
-    {{- partial "page_albums.html" . -}}
-+   {{- partial "page_gallery.html" . -}}
-  {{ end }}
+```markdown
+---
+date: 2024-02-18T14:12:44+0100
+title: Cats
+resources:
+  - src: cat-1.jpg
+    title: Brown tabby cat on white stairs
+    params:
+      date: 2024-02-18T13:04:30+0100
+  - src: cat-2.jpg
+    title: Selective focus photography of orange and white cat on brown table
+---
 ```
 
-In this case, featured images for albums which only contain other albums need to be moved to a sub-directory to avoid being displayed.
+### Additional Features
 
-### Folders with no images
+#### Featured Album
 
-Albums with no images are hidden by default. This is a design decision to keep the structure as simple as possible and hides pages like `about.md` or `imprint.md` from the album list without the need of defining a layout/section for each gallery.
+On the homepage, up to one featured album (`featured: true` in the front matter) is displayed. Note: featured albums are displayed on the homepage, even if they are private.
 
-@baekgaard made a [Pull request](https://github.com/nicokaiser/hugo-theme-gallery/pull/14) about handling of empty albums, which allows to modify this behaviour (which, for simplicity reasons, is not merged).
+#### Related Content
+
+If related content is available for your site (e.g. when keywords or tags are used), related albums are shown below each gallery.
+Read more about this in the [Hugo Docs](https://gohugo.io/content-management/related/#configure-related-content).
+
+#### Social Icons
+
+Use the `socialIcons` configuration key to add social icons on the bottom of each page:
+
+```toml
+[params]
+  ...
+  [params.socialIcons]
+    facebook = "https://www.facebook.com/"
+    instagram = "https://www.instagram.com/"
+    github = "https://github.com/nicokaiser/hugo-theme-gallery/"
+    youtube = "https://www.youtube.com/"
+    email = "mailto:user@example.com"
+```
+
+### Customization
+
+The theme is very opinionated but kept simple to you can create a customized version. CSS is generated with Hugo Pipes, so you can add additional CSS in `assets/css/custom.css` (see example in `exampleSite`).
 
 ## Author
 
